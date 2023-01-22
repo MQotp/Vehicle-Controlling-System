@@ -1,0 +1,209 @@
+/*
+ * VCS.c
+ *
+ *  Created on: Aug 27, 2022
+ *      Author: Mahmoud Qotp
+ *      Project: Vehicle Controlling System
+ */
+
+//90% Done
+#define ON 1
+#define OFF 0
+
+#define WITH_ENGINE_TEMP_CONTROLLER 0
+#include <stdio.h>
+
+char mainList(void);
+char sensorsSetMenu(void);
+void trafficLights(short *vehicle_Speed);
+void roomTempAdjust(char *state_of_AC, char *temperature_of_Room);
+#if WITH_ENGINE_TEMP_CONTROLLER
+void engineTempo(char *engTmpCtrl, short *engTmp);
+#endif
+void report(char engineState, char ACState, short vehicleSpeed, char roomTemp, char engineTempCtrlState ,short engineTemp);
+
+
+
+int main(void)
+{
+	char cMainList, cOnList, engineTempCtrl = OFF, engineState = OFF, ACState = OFF, roomTemp = 37;
+	short vehicleSpeed = 0, engineTemp = 90;
+
+	while(1)
+	{
+		cMainList = mainList();
+		switch (cMainList)
+		{
+		case 'a': //Vehicle engine is ON
+			engineState = ON;
+			while(engineState == ON)
+			{
+				cOnList = sensorsSetMenu();
+				if (cOnList == 'a') //Turn off engine
+				{
+					engineState = OFF;
+				}
+				else if(cOnList == 'b') //Traffic Light
+				{
+					trafficLights(&vehicleSpeed);
+					if (vehicleSpeed == 30)
+					{
+						ACState = ON;
+						roomTemp = (float)(roomTemp * 5/4) + 1;
+#if WITH_ENGINE_TEMP_CONTROLLER
+						engineTempCtrl = ON;
+						engineTemp = (float)(engineTemp * 5/4) + 1;
+#endif
+					}
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+				else if(cOnList == 'c') //Room Temp
+				{
+					roomTempAdjust(&ACState, &roomTemp);
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+#if WITH_ENGINE_TEMP_CONTROLLER
+				else if(cOnList == 'd') //engine Temp
+				{
+					engineTempo(&engineTempCtrl, &engineTemp);
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+#endif
+				else //Invalid input
+				{
+					engineState = OFF;
+				}
+			}
+			break;
+		case 'b':
+			engineState = OFF;
+			printf("Turn off Vehicle Engine.\n");
+			continue;
+		case 'c':
+			printf("Quit The System.\n");
+			return 0;
+		}
+	}
+	return 0;
+}
+
+char mainList(void)
+{
+	char input;
+	printf("a. Turn on the vehicle engine\n");
+	printf("b. Turn off the vehicle engine\n");
+	printf("c. Quit the system\n\n");
+	fflush(stdout);
+	scanf(" %c",&input);
+	return input;
+}
+
+char sensorsSetMenu(void)
+{
+	char cInput;
+	printf("\na. Turn off the engine\n");
+	printf("b. Set the traffic light color\n");
+	printf("c. Set the room temperature (Temperature Sensor)\n");
+#if WITH_ENGINE_TEMP_CONTROLLER
+	printf("d. Set the engine temperature\n");
+#endif
+	fflush(stdout);
+	scanf(" %c", &cInput);
+	return cInput;
+}
+
+void trafficLights(short *vehicle_Speed)
+{
+	char trafficChar;
+	printf("Enter the required color\n");
+	fflush(stdout);
+	scanf(" %c", &trafficChar);
+	switch(trafficChar)
+	{
+	case 'g':
+		*vehicle_Speed = 100;
+		break;
+	case 'o':
+		*vehicle_Speed = 30;
+		break;
+	default:
+		*vehicle_Speed = 0;
+	}
+}
+
+void roomTempAdjust(char *state_of_AC, char *temperature_of_Room)
+{
+	short x;
+	printf("Enter the room temperature\n");
+	fflush(stdout);
+	scanf(" %hi", &x);
+	if(x < 10 || x > 30)
+	{
+		*state_of_AC = ON;
+		*temperature_of_Room = 20;
+	}
+	else
+	{
+		*state_of_AC = OFF;
+		*temperature_of_Room = x;
+	}
+}
+
+#if WITH_ENGINE_TEMP_CONTROLLER
+void engineTempo(char *engTmpCtrl, short *engTmp)
+{
+	short tmp;
+	printf("Enter the engine temperature\n");
+	fflush(stdout);
+	scanf(" %hi", &tmp);
+	if (tmp < 100 || tmp > 150)
+	{
+		*engTmpCtrl = 1;
+		*engTmp = 125;
+	}
+	else
+	{
+		*engTmpCtrl = OFF;
+		*engTmp = tmp;
+	}
+}
+#endif
+
+void report(char engineState, char ACState, short vehicleSpeed, char roomTemp, char engineTempCtrlState ,short engineTemp)
+{
+	/* Engine State */
+	if(engineState == ON)
+	{
+		printf("\nEngine is ON\n");
+	}
+	else if(engineState == OFF)
+	{
+		printf("Engine is OFF\n");
+	}
+	/* AC State */
+	if(ACState == ON)
+	{
+		printf("AC is ON\n");
+	}
+	else if (ACState == OFF)
+	{
+		printf("AC is OFF\n");
+	}
+	/* Vehicle Speed */
+	printf("Vehicle Speed: %i Km/hr\n",vehicleSpeed);
+	/* Room Temperature */
+	printf("Room Temperature: %i C\n", roomTemp);
+#if WITH_ENGINE_TEMP_CONTROLLER
+	/* Engine Temperature Controller State */
+	if(engineTempCtrlState == ON)
+	{
+		printf("Engine Temperature Controller is ON\n");
+	}
+	else if (engineTempCtrlState == OFF)
+	{
+		printf("Engine Temperature Controller is OFF\n");
+	}
+	/* Engine Temperature */
+	printf("Engine Temperature: %i C\n\n",engineTemp);
+#endif
+}

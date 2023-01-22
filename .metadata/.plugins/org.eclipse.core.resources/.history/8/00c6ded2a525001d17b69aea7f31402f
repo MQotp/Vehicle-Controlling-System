@@ -1,0 +1,138 @@
+/*
+ * VCS.c
+ *
+ *  Created on: Aug 27, 2022
+ *      Author: Mahmoud Qotp
+ */
+
+
+#include <stdio.h>
+
+char mainList(void);
+char sensorsSetMenu(void);
+
+
+int main(void)
+{
+	char cMainList, cOnList, trafficLight, engineTempCtrl = 0, roomTemp = 37, engineTemp = 90, engineState = 0, ACState = 0;
+	//long roomTemp, engineTemp;
+	while(1)
+	{
+		cMainList = mainList();
+		switch (cMainList)
+		{
+		case 'a': //Vehicle engine is ON
+			engineState = 1;
+			cOnList = sensorsSetMenu();
+			if (cOnList == 'a')
+			{
+				continue;
+			}
+			else if(cOnList == 'b') //Traffic Light
+			{
+
+			}
+			else if(cOnList == 'c') //Room Temp
+			{
+
+			}
+			else if(cOnList == 'd') //engine Temp
+			{
+
+			}
+			else //Invalid input
+			{
+				continue;
+			}
+			//later
+			break;
+		case 'b':
+			engineState = 0;
+			printf("Turn off Vehicle Engine.\n");
+			continue;
+		case 'c':
+			printf("Quit The System.\n");
+			return 0;
+		}
+	}
+	return 0;
+}
+
+char mainList(void)
+{
+	char input;
+	printf("a. Turn on the vehicle engine\n");
+	printf("b. Turn off the vehicle engine\n");
+	printf("c. Quit the system\n\n");
+	fflush(stdout);
+	scanf(" %c",&input);
+	return input;
+}
+
+char sensorsSetMenu(void)
+{
+	char cInput;
+	printf("a. Turn off the engine\n");
+	printf("b. Set the traffic light color\n");
+	printf("c. Set the room temperature (Temperature Sensor)\n");
+	printf("d. Set the engine temperature\n");
+	fflush(stdout);
+	scanf(" %c", &cInput);
+	return cInput;
+}
+
+void report(char engineState, char ACState, char vehicleSpeed, char roomTemp, char engineTempCtrlState ,char engineTemp)
+{
+	/* Engine State */
+	if(engineState == 1)
+	{
+		printf("Engine is ON\n");
+	}
+	else
+	{
+		printf("Engine is OFF\n");
+	}
+	/* AC State */
+	if(ACState == 1)
+	{
+		printf("AC is ON\n");
+	}
+	else
+	{
+		printf("AC is OFF\n");
+	}
+	/* Vehicle Speed */
+	printf("Vehicle Speed: %i Km/hr\n",vehicleSpeed);
+	/* Room Temperature */
+	printf("Room Temperature: %i C\n", roomTemp);
+	/* Engine Temperature Controller State */
+	if(engineTempCtrlState == 1)
+	{
+		printf("Engine Temperature Controller is ON\n");
+	}
+	else
+	{
+		printf("Engine Temperature Controller is OFF\n");
+	}
+	/* Engine Temperature */
+	printf("Engine Temperature: %i C\n",engineTemp);
+}
+
+void trafficLights(char *vehicle_Speed)
+{
+	char trafficChar;
+	printf("Enter the required color\n");
+	fflush(stdout);
+	scanf(" %c", &trafficChar);
+	switch(trafficChar)
+	{
+	case 'g':
+		*vehicle_Speed = 100;
+		break;
+	case 'o':
+		*vehicle_Speed = 30;
+		break;
+	default:
+		*vehicle_Speed = 0;
+	}
+}

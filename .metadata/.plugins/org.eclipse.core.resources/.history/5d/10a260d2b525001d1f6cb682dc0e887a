@@ -1,0 +1,194 @@
+/*
+ * VCS.c
+ *
+ *  Created on: Aug 27, 2022
+ *      Author: Mahmoud Qotp
+ *      Project: Vehicle Controlling System
+ */
+
+
+#include <stdio.h>
+
+char mainList(void);
+char sensorsSetMenu(void);
+void trafficLights(short *vehicle_Speed);
+void tempData(char *ACState, char *roomTemp);
+void engineTempo(char *engTmpCtrl, short *engTmp);
+void report(char engineState, char ACState, short vehicleSpeed, char roomTemp, char engineTempCtrlState ,short engineTemp);
+
+
+
+int main(void)
+{
+	char cMainList, cOnList, engineTempCtrl = 0, engineState = 0, ACState = 0;
+	short vehicleSpeed = 0, engineTemp = 90;
+	char roomTemp = 37;
+
+	while(1)
+	{
+		cMainList = mainList();
+		switch (cMainList)
+		{
+		case 'a': //Vehicle engine is ON
+			engineState = 1;
+			while(engineState == 1)
+			{
+				cOnList = sensorsSetMenu();
+				if (cOnList == 'a') //Turn off engine
+				{
+					engineState = 0;
+				}
+				else if(cOnList == 'b') //Traffic Light
+				{
+					trafficLights(&vehicleSpeed);
+					if (vehicleSpeed == 30)
+					{
+						ACState = 1;
+						roomTemp = (float)(roomTemp * 5/4) + 1;
+						engineTempCtrl = 1;
+						engineTemp = (float)(engineTemp * 5/4) + 1;
+					}
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+				else if(cOnList == 'c') //Room Temp
+				{
+					tempData(&ACState, &roomTemp);
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+				else if(cOnList == 'd') //engine Temp
+				{
+					engineTempo(&engineTempCtrl, &engineTemp);
+					report(engineState,ACState,vehicleSpeed,roomTemp,engineTempCtrl,engineTemp);
+				}
+				else //Invalid input
+				{
+					engineState = 0;
+				}
+			}
+			break;
+		case 'b':
+			engineState = 0;
+			printf("Turn off Vehicle Engine.\n");
+			continue;
+		case 'c':
+			printf("Quit The System.\n");
+			return 0;
+		}
+	}
+	return 0;
+}
+
+char mainList(void)
+{
+	char input;
+	printf("a. Turn on the vehicle engine\n");
+	printf("b. Turn off the vehicle engine\n");
+	printf("c. Quit the system\n\n");
+	fflush(stdout);
+	scanf(" %c",&input);
+	return input;
+}
+
+char sensorsSetMenu(void)
+{
+	char cInput;
+	printf("a. Turn off the engine\n");
+	printf("b. Set the traffic light color\n");
+	printf("c. Set the room temperature (Temperature Sensor)\n");
+	printf("d. Set the engine temperature\n");
+	fflush(stdout);
+	scanf(" %c", &cInput);
+	return cInput;
+}
+
+void trafficLights(short *vehicle_Speed)
+{
+	char trafficChar;
+	printf("Enter the required color\n");
+	fflush(stdout);
+	scanf(" %c", &trafficChar);
+	switch(trafficChar)
+	{
+	case 'g':
+		*vehicle_Speed = 100;
+		break;
+	case 'o':
+		*vehicle_Speed = 30;
+		break;
+	default:
+		*vehicle_Speed = 0;
+	}
+}
+
+void tempData(char *ACState, char *roomTemp)
+{
+	char tmp;
+	printf("Enter the room temperature\n");
+	fflush(stdout);
+	scanf(" %c", &tmp);
+	if(tmp < 10 || tmp > 30)
+	{
+		*ACState = 1;
+		*roomTemp = 20;
+	}
+	else
+	{
+		*ACState = 0;
+		*roomTemp = tmp;
+	}
+}
+
+void engineTempo(char *engTmpCtrl, short *engTmp)
+{
+	short tmp;
+	printf("Enter the engine temperature\n");
+	fflush(stdout);
+	scanf(" %hi", &tmp);
+	if (tmp < 100 || tmp > 150)
+	{
+		*engTmpCtrl = 1;
+		*engTmp = 125;
+	}
+	else
+	{
+		*engTmpCtrl = 0;
+		*engTmp = tmp;
+	}
+}
+
+void report(char engineState, char ACState, short vehicleSpeed, char roomTemp, char engineTempCtrlState ,short engineTemp)
+{
+	/* Engine State */
+	if(engineState == 1)
+	{
+		printf("Engine is ON\n");
+	}
+	else if(engineState == 0)
+	{
+		printf("Engine is OFF\n");
+	}
+	/* AC State */
+	if(ACState == 1)
+	{
+		printf("AC is ON\n");
+	}
+	else if (ACState == 0)
+	{
+		printf("AC is OFF\n");
+	}
+	/* Vehicle Speed */
+	printf("Vehicle Speed: %i Km/hr\n",vehicleSpeed);
+	/* Room Temperature */
+	printf("Room Temperature: %i C\n", roomTemp);
+	/* Engine Temperature Controller State */
+	if(engineTempCtrlState == 1)
+	{
+		printf("Engine Temperature Controller is ON\n");
+	}
+	else if (engineTempCtrlState == 0)
+	{
+		printf("Engine Temperature Controller is OFF\n");
+	}
+	/* Engine Temperature */
+	printf("Engine Temperature: %i C\n\n",engineTemp);
+}
